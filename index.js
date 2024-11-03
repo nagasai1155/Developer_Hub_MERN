@@ -6,7 +6,7 @@ const devuser =require('./devusermodel');
 const bodyparser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const middleware = require('./middleware')
-
+const reviewmodel = require('./reviewmodel')
 dotenv.config();
 
  mongoose.connect(process.env.MONGO_URI)
@@ -70,8 +70,8 @@ app.get('/login',async(req,res)=>{
        }
          
        let payload={
-        "user":{
-            "id":"exists.id"
+        user:{
+            id:exists.id
         }
        }
        jwt.sign(payload,'jwtpassword',{expiresIn:"1h"},(err,token)=>{
@@ -122,9 +122,19 @@ app.get('/myprofile',middleware,async(req,res)=>{
 
 app.post('/addreview',middleware,async(req,res)=>{
     try{
-        
+        const {taskworker,rating}=req.body;
+        const exist = await devuser.findById(req.user.id)
+        const newReview = new reviewmodel({
+            taskprovider :exist.fullname,
+            taskworker,rating
+        })
+        newReview.save();
+        return res.status(200).send("review added sucessfully")
+
     }catch(err){
         console.log(err);
         return res.status(501).send("server error")
     }
 })
+
+
