@@ -137,4 +137,17 @@ app.post('/addreview',middleware,async(req,res)=>{
     }
 })
 
+app.get('myreview',middleware,async()=>{
+    try{
+    let allreviews = await reviewmodel.find();
+    let myrev = allreviews.filter(review =>review.taskworker.toString() === req.user.id.toString());
+    return res.status(200).json(myrev);
+
+
+    }catch(error){
+        console.log(err);
+        return res.status(500).send("server error");
+    }
+})
+
 
